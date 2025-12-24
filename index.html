@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公告中心（纯静态）</title>
+    <title>公告中心（纯静态+筛选生效）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
         body { background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
@@ -24,13 +24,15 @@
         /* 公告列表 */
         .notice-list .notice-item { padding: 15px; background: #232323; border-radius: 10px; margin-bottom: 12px; cursor: pointer; border-left: 4px solid #2d2d2d; }
         .notice-list .notice-item.sticky { border-left: 4px solid #ffc107; background: #272720; }
+        .notice-list .notice-item.system { /* 系统通知样式标识 */ }
+        .notice-list .notice-item.activity { /* 活动公告样式标识 */ }
+        .notice-list .notice-item.notice { /* 重要通知样式标识 */ }
         .notice-list .sticky-tag { background: #ffc107; color: #121212; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-right: 8px; }
         .notice-list .title { color: #fff; font-size: 1rem; margin-bottom: 8px; }
         .notice-list .meta { color: #999; font-size: 0.8rem; display: flex; gap: 15px; }
         
-        /* 公告详情（默认隐藏，点击公告后手动切换显示） */
+        /* 公告详情（默认隐藏） */
         .notice-detail { display: none; }
-        .notice-detail.show { display: block; }
         .back-btn { padding: 10px 20px; background: #2d2d2d; border: none; border-radius: 10px; color: #e0e0e0; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .detail-title { color: #fff; font-size: 1.2rem; margin-bottom: 15px; }
         .detail-meta { color: #999; font-size: 0.9rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #2d2d2d; }
@@ -48,20 +50,20 @@
             <p>横屏专用 · 点选查看详情</p>
         </div>
 
-        <!-- 筛选栏 -->
+        <!-- 筛选栏：添加内联点击事件，切换激活状态+筛选公告 -->
         <div class="filter-bar">
-            <button class="active">全部公告</button>
-            <button>系统通知</button>
-            <button>活动公告</button>
-            <button>重要通知</button>
+            <button class="active" id="filterAll" onclick="setActive('filterAll');showAllNotice()">全部公告</button>
+            <button id="filterSystem" onclick="setActive('filterSystem');showNoticeByType('system')">系统通知</button>
+            <button id="filterActivity" onclick="setActive('filterActivity');showNoticeByType('activity')">活动公告</button>
+            <button id="filterNotice" onclick="setActive('filterNotice');showNoticeByType('notice')">重要通知</button>
         </div>
 
         <!-- 内容容器 -->
         <div class="content-container">
             <!-- 公告列表（默认显示） -->
             <div class="notice-list" id="list">
-                <!-- 公告1（点击跳转到详情） -->
-                <div class="notice-item sticky" onclick="document.getElementById('list').style.display='none';document.getElementById('detail1').style.display='block'">
+                <!-- 公告1：重要通知（notice类型） -->
+                <div class="notice-item sticky notice" id="item1" onclick="document.getElementById('list').style.display='none';document.getElementById('detail1').style.display='block'">
                     <div class="title">
                         <span class="sticky-tag">置顶</span>
                         测试公告（置顶）
@@ -72,17 +74,35 @@
                     </div>
                 </div>
 
-                <!-- 公告2 -->
-                <div class="notice-item" onclick="document.getElementById('list').style.display='none';document.getElementById('detail2').style.display='block'">
+                <!-- 公告2：活动公告（activity类型） -->
+                <div class="notice-item activity" id="item2" onclick="document.getElementById('list').style.display='none';document.getElementById('detail2').style.display='block'">
                     <div class="title">测试公告1</div>
                     <div class="meta">
                         <span>2025-12-22</span>
                         <span>活动公告</span>
                     </div>
                 </div>
+
+                <!-- 公告3：系统通知（system类型） -->
+                <div class="notice-item system" id="item3" onclick="document.getElementById('list').style.display='none';document.getElementById('detail3').style.display='block'">
+                    <div class="title">测试公告2</div>
+                    <div class="meta">
+                        <span>2025-12-20</span>
+                        <span>系统通知</span>
+                    </div>
+                </div>
+
+                <!-- 公告4：重要通知（notice类型） -->
+                <div class="notice-item notice" id="item4" onclick="document.getElementById('list').style.display='none';document.getElementById('detail4').style.display='block'">
+                    <div class="title">测试公告3</div>
+                    <div class="meta">
+                        <span>2025-12-18</span>
+                        <span>重要通知</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 公告1详情（带返回按钮） -->
+            <!-- 公告1详情 -->
             <div class="notice-detail" id="detail1">
                 <button class="back-btn" onclick="document.getElementById('detail1').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
                 <h2 class="detail-title">测试公告（置顶）</h2>
@@ -90,12 +110,28 @@
                 <div class="detail-content">测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容</div>
             </div>
 
-            <!-- 公告2详情（带返回按钮） -->
+            <!-- 公告2详情 -->
             <div class="notice-detail" id="detail2">
                 <button class="back-btn" onclick="document.getElementById('detail2').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
                 <h2 class="detail-title">测试公告1</h2>
                 <div class="detail-meta">2025-12-22 | 活动公告</div>
                 <div class="detail-content">测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1</div>
+            </div>
+
+            <!-- 公告3详情 -->
+            <div class="notice-detail" id="detail3">
+                <button class="back-btn" onclick="document.getElementById('detail3').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
+                <h2 class="detail-title">测试公告2</h2>
+                <div class="detail-meta">2025-12-20 | 系统通知</div>
+                <div class="detail-content">测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2</div>
+            </div>
+
+            <!-- 公告4详情 -->
+            <div class="notice-detail" id="detail4">
+                <button class="back-btn" onclick="document.getElementById('detail4').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
+                <h2 class="detail-title">测试公告3</h2>
+                <div class="detail-meta">2025-12-18 | 重要通知</div>
+                <div class="detail-content">测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3</div>
             </div>
         </div>
 
@@ -104,5 +140,46 @@
             © 2025 公告展示平台 版权所有
         </div>
     </div>
+
+    <!-- 筛选功能核心脚本（内联，确保生效） -->
+    <script>
+        // 切换筛选按钮激活状态
+        function setActive(btnId) {
+            // 移除所有按钮的active类
+            document.getElementById('filterAll').classList.remove('active');
+            document.getElementById('filterSystem').classList.remove('active');
+            document.getElementById('filterActivity').classList.remove('active');
+            document.getElementById('filterNotice').classList.remove('active');
+            // 给当前点击的按钮添加active类
+            document.getElementById(btnId).classList.add('active');
+        }
+
+        // 显示所有公告
+        function showAllNotice() {
+            document.getElementById('item1').style.display = 'block';
+            document.getElementById('item2').style.display = 'block';
+            document.getElementById('item3').style.display = 'block';
+            document.getElementById('item4').style.display = 'block';
+        }
+
+        // 按类型显示公告
+        function showNoticeByType(type) {
+            // 先隐藏所有公告
+            document.getElementById('item1').style.display = 'none';
+            document.getElementById('item2').style.display = 'none';
+            document.getElementById('item3').style.display = 'none';
+            document.getElementById('item4').style.display = 'none';
+            
+            // 根据类型显示对应公告
+            if (type === 'system') {
+                document.getElementById('item3').style.display = 'block'; // 系统通知
+            } else if (type === 'activity') {
+                document.getElementById('item2').style.display = 'block'; // 活动公告
+            } else if (type === 'notice') {
+                document.getElementById('item1').style.display = 'block'; // 重要通知（置顶）
+                document.getElementById('item4').style.display = 'block'; // 重要通知
+            }
+        }
+    </script>
 </body>
 </html>
