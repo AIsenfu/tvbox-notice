@@ -3,38 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>公告中心（横竖屏自适应版）</title>
+    <title>嵌入式公告中心</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
         
-        /* 全局样式：基础适配 */
-        body { 
-            background: #121212; 
-            color: #e0e0e0; 
-            padding: 10px; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* 页面容器：自适应宽度 */
-        .page-container {
-            max-width: 1000px;
+        /* 外层容器：模拟中间小块空间，可根据实际场景调整宽高 */
+        .embed-container {
+            width: 600px; /* 适配中间小块宽度，可自定义 */
+            height: 400px; /* 适配中间小块高度，可自定义 */
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            height: calc(100vh - 20px);
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* 头部：紧凑布局 */
-        .header h1 { 
-            text-align: center; 
-            font-size: clamp(1.1rem, 3vw, 1.3rem);
-            color: #fff; 
-            margin-bottom: 3px; 
+        /* 公告中心核心容器：填满外层小块 */
+        .notice-center {
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            color: #e0e0e0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
+
+        /* 头部：超紧凑，居中显示 */
+        .header {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .header h1 { 
+            font-size: 1rem;
+            color: #fff; 
+            margin-bottom: 2px; 
+        }
+        .header p { 
+            font-size: 0.7rem;
+            color: #999; 
+        }
+        
+        /* 筛选栏：极致紧凑，按钮更小 */
+        .filter-bar { 
+            display: flex; 
+            gap: 6px; 
+            padding: 6px; 
+            background: #1e1e1e; 
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .filter-bar button { 
+            padding: 4px 10px; 
+            background: #2d2d2d; 
+            border: none; 
+            border-radius: 14px; 
+            color: #e0e0e0; 
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+        .filter-bar button.active { 
+            background: #6200ee; 
+            color: #fff; 
+            transform: scale(1.05);
+        }
+        
+        /* 核心内容区：占满剩余空间，列表+详情分层 */
+        .content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        /* 公告列表：固定高度，超紧凑 */
+        .notice-list {
+            height: 80px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .notice-item { 
+            padding: 6px 8px; 
+            background: #232323; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            border-left: 2px solid #2d2d2d;
+            font-size: 0.75rem;
+        }
+        .notice-item.active {
+            background: #2d2d2d;
+            border-left: 2px solid #6200ee;
+        }
+        .notice-item.sticky { 
+            border-left: 2px solid #ffc107; 
+            background: #272720; 
+        }
+        .sticky-tag { 
+            background: #ffc107; 
+            color: #121212; 
+            padding: 1px 4px; 
+            border-radius: 4px; 
+            font-size: 0.65rem; 
+            margin-right: 4px; 
+        }
+        .notice-item .meta { 
+            color: #999; 
+            font-size: 0.65rem; 
+            margin-top: 2px;
+        }
+
+        /* 公告详情：占满剩余高度，超紧凑 */
+        .notice-detail {
+            flex: 1;
+            background: #232323;
+            border-radius: 6px;
+            padding: 8px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            font-size: 0.75rem;
+        }
+        .detail-empty {
+            text-align: center;
+            color: #777;
+            font-size: 0.7rem;
+            margin: auto;
+        }
+        .detail-title { 
+            color: #fff; 
+            font-size: 0.85rem; 
+            margin-bottom: 4px; 
+        }
+        .detail-meta { 
+            color: #999; 
+            font-size: 0.65rem; 
+            margin-bottom: 6px; 
+            padding-bottom: 4px; 
+            border-bottom: 1px solid #2d2d2d; 
+        }
+        .detail-content { 
+            color: #ccc; 
+            font-size: 0.7rem; 
+            line-height: 1.6; 
+        }
+        
+        /* 底部：超小字号，居中 */
+        .footer { 
+            text-align: center; 
+            padding: 4px; 
+            background: #1e1e1e; 
+            border-radius: 6px; 
+            color: #777; 
+            font-size: 0.6rem; 
+        }
+
+        /* 滚动条美化：适配小块空间 */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+    </style>
+</head>
+<body>
+    <!-- 外层模拟中间小块空间，可根据实际页面调整宽高/位置 -->
+    <div class="embed-container">
+        <!-- 公告中        }
         .header p { 
             text-align: center; 
             color: #999; 
