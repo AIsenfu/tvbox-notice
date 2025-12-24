@@ -3,37 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="screen-orientation" content="landscape">
-    <title>公告中心（手机横屏优化版）</title>
+    <title>公告中心（横竖屏自适应版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
         
-        /* 强制横屏适配 + 禁止缩放 */
+        /* 全局样式：基础适配 */
         body { 
             background: #121212; 
             color: #e0e0e0; 
             padding: 10px; 
             min-height: 100vh;
-            /* 横屏适配核心：根据屏幕宽高比调整布局 */
-            @media (aspect-ratio < 1) { /* 竖屏提示 */
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: column;
-                font-size: 1.2rem;
-                color: #999;
-                text-align: center;
-                padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 页面容器：自适应宽度 */
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: calc(100vh - 20px);
+        }
+
+        /* 头部：紧凑布局 */
+        .header h1 { 
+            text-align: center; 
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            color: #fff; 
+            margin-bottom: 3px; 
+        }
+        .header p { 
+            text-align: center; 
+            color: #999; 
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+        
+        /* 筛选栏：横向滚动适配，横竖屏通用 */
+        .filter-bar { 
+            display: flex; 
+            gap: 8px; 
+            padding: 10px; 
+            background: #1e1e1e; 
+            border-radius: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .filter-bar button { 
+            padding: 7px 14px; 
+            background: #2d2d2d; 
+            border: none; 
+            border-radius: 18px; 
+            color: #e0e0e0; 
+            cursor: pointer;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            transition: all 0.2s ease;
+        }
+        .filter-bar button.active { 
+            background: #6200ee; 
+            color: #fff; 
+            transform: scale(1.05);
+        }
+        
+        /* 核心内容区：根据屏幕宽高比切换布局 */
+        .content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        /* 横屏时：列表+详情上下布局，列表固定高度 */
+        @media (aspect-ratio > 1) {
+            .notice-list {
+                height: 180px;
             }
         }
 
-        /* 竖屏隐藏内容，只显示提示 */
-        .page-container {
-            max-width: 100%;
-            margin: 0 auto;
-            max-height: 95vh;
+        /* 竖屏时：列表高度自适应，占比更小 */
+        @media (aspect-ratio <= 1) {
+            .notice-list {
+                height: 120px;
+            }
+        }
+
+        /* 公告列表区：滚动适配 */
+        .notice-list {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
+            gap: 8px;
+        }
+        .notice-item { 
+            padding: 12px; 
+            background: #232323; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            border-left: 3px solid #2d2d2d;
+            transition: all 0.2s ease;
+        }
+        .notice-item.active {
+            background: #2d2d2d;
+            border-left: 3px solid #6200ee;
+        }
+        .notice-item.sticky { 
+            border-left: 3px solid #ffc107; 
+            background: #272720; 
+        }
+        .notice-item.sticky.active {
+            background: #303028;
+        }
+        .sticky-tag { 
+            background: #ffc107; 
+            color: #121212; 
+            padding: 2px 6px; 
+            border-radius: 8px; 
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            margin-right: 6px; 
+        }
+        .notice-item .title { 
+            color: #fff; 
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            margin-bottom: 6px; 
+        }
+        .notice-item .meta { 
+            color: #999; 
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* 公告详情区：占满剩余高度，滚动适配 */
+        .notice-detail {
+            flex: 1;
+            background: #232323;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .detail-empty {
+            text-align: center;
+            color: #777;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            margin: auto;
+        }
+        .detail-title { 
+            color: #fff; 
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            margin-bottom: 12px; 
+        }
+        .detail-meta { 
+            color: #999; 
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+            margin-bottom: 15px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #2d2d2d; 
+        }
+        .detail-content { 
+            color: #ccc; 
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            line-height: 1.7; 
+            text-align: justify; 
+        }
+        
+        /* 底部：自适应字号 */
+        .footer { 
+            text-align: center; 
+            padding: 8px; 
+            background: #1e1e1e; 
+            border-radius: 10px; 
+            color: #777; 
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+        }
+    </style>
+</head>
+<body>
+    <!-- 单页容器：所有内容整合 -->
+    <div class="page-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>公告中心</h1>
+            <p>单页式展示 · 点击查看详情</p>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <button class="active" id="filterAll" onclick="setActive('filterAll');showAllNotice()">全部公告</button>
+            <button id="filterSystem" onclick="setActive('filterSystem');showNoticeByType('system')">系统通知</button>
+            <button id="filterActivity" onclick="setActive('filterActivity');showNoticeByType('activity')">活动公告</button>
+            <button id="filterNotice" onclick="setActive('filterNotice');showNoticeByType('notice')">重要通知</button>
+        </div>
+
+        <!-- 核心内容：列表+详情同页 -->
+        <div class="content-wrap">
+            <!-- 公告列表 -->
+            <div class="notice-list" id="noticeList">
+                <div class="notice-item sticky notice" id="item1" onclick="showDetail(1)">
+                    <div class="title">
+                        <span class="sticky-tag">置顶</span>
+                        测试公告（置顶）
+                    </div>
+                    <div class="meta">
+                        <span>2025-12-24</span>
+                        <span>重要通知</span>
+                    </div>
+                </div>
+                <div class="notice-item activity" id="item2" onclick="showDetail(2)">
+                    <div class="title">测试公告1</div>
+                    <div class="meta">
+                        <span>2025-12-22</span>
+                        <span>活动公告</span>
+                    </div>
+                </div>
+                <div class="notice-item system" id="item3" onclick="showDetail(3)">
+                    <div class="title">测试公告2</div>
+                    <div class="meta">
+                        <span>2025-12-20</span>
+                        <span>系统通知</span>
+                    </div>
+                </div>
+                <div class="notice-item notice" id="item4" onclick="showDetail(4)">
+                    <div class="title">测试公告3</div>
+                    <div class="meta">
+                        <span>2025-12-18</span>
+                        <span>重要通知</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 公告详情（默认显示空提示） -->
+            <div class="notice-detail" id="noticeDetail">
+                <div class="detail-empty" id="detailEmpty">请点击公告查看详情</div>
+                <div id="detailContent" style="display: none;">
+                    <h2 class="detail-title" id="dTitle"></h2>
+                    <div class="detail-meta" id="dMeta"></div>
+                    <div class="detail-content" id="dContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            © 2025 公告展示平台 版权所有
+        </div>
+    </div>
+
+    <script>
+        // 公告数据
+        const noticeData = [
+            {
+                id: 1,
+                title: "测试公告（置顶）",
+                meta: "2025-12-24 | 重要通知",
+                content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
+            },
+            {
+                id: 2,
+                title: "测试公告1",
+                meta: "2025-12-22 | 活动公告",
+                content: "测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1"
+            },
+            {
+                id: 3,
+                title: "测试公告2",
+                meta: "2025-12-20 | 系统通知",
+                content: "测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2"
+            },
+            {
+                id: 4,
+                title: "测试公告3",
+                meta: "2025-12-18 | 重要通知",
+                content: "测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3"
+            }
+        ];
+
+        // 切换筛选按钮激活状态
+        function setActive(btnId) {
+            document.getElementById('filterAll').classList.remove('active');
+            document.getElementById('filterSystem').classList.remove('active');
+            document.getElementById('filterActivity').classList.remove('active');
+            document.getElementById('filterNotice').classList.remove('active');
+            document.getElementById(btnId).classList.add('active');
+        }
+
+        // 显示所有公告
+        function showAllNotice() {
+            document.getElementById('item1').style.display = 'block';
+            document.getElementById('item2').style.display = 'block';
+            document.getElementById('item3').style.display = 'block';
+            document.getElementById('item4').style.display = 'block';
+            clearNoticeActive();
+            showEmptyTip();
+        }
+
+        // 按类型显示公告
+        function showNoticeByType(type) {
+            document.getElementById('item1').style.display = 'none';
+            document.getElementById('item2').style.display = 'none';
+            document.getElementById('item3').style.display = 'none';
+            document.getElementById('item4').style.display = 'none';
+            clearNoticeActive();
+            showEmptyTip();
+            
+            if (type === 'system') {
+                document.getElementById('item3').style.display = 'block';
+            } else if (type === 'activity') {
+                document.getElementById('item2').style.display = 'block';
+            } else if (type === 'notice') {
+                document.getElementById('item1').style.display = 'block';
+                document.getElementById('item4').style.display = 'block';
+            }
+        }
+
+        // 显示公告详情
+        function showDetail(id) {
+            clearNoticeActive();
+            document.getElementById(`item${id}`).classList.add('active');
+            const notice = noticeData.find(item => item.id === id);
+            if (notice) {
+                document.getElementById('detailEmpty').style.display = 'none';
+                document.getElementById('detailContent').style.display = 'block';
+                document.getElementById('dTitle').innerText = notice.title;
+                document.getElementById('dMeta').innerText = notice.meta;
+                document.getElementById('dContent').innerText = notice.content;
+            }
+        }
+
+        // 清除公告选中状态
+        function clearNoticeActive() {
+            document.querySelectorAll('.notice-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        // 显示空提示
+        function showEmptyTip() {
+            document.getElementById('detailEmpty').style.display = 'block';
+            document.getElementById('detailContent').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
             gap: 10px; /* 缩小间距，适配手机横屏宽度 */
             
             @media (aspect-ratio < 1) {
