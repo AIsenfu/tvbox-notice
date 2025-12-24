@@ -14,12 +14,11 @@
         }
 
         body {
-            background: #121212; /* 简化背景，避免加载问题 */
+            background: #121212; /* 简化背景，确保稳定加载 */
             color: #e0e0e0;
             line-height: 1.6;
             min-height: 100vh;
             padding: clamp(10px, 2vw, 15px);
-            /* 横屏时内容居中紧凑排列 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,8 +27,8 @@
         /* 页面容器：限制最大宽度，适配横屏平板/手机 */
         .page-container {
             width: 100%;
-            max-width: 1200px; /* 横屏平板最佳宽度 */
-            max-height: 95vh; /* 内容集中在单屏，不超出视口 */
+            max-width: 1200px;
+            max-height: 95vh;
             display: flex;
             flex-direction: column;
             gap: clamp(10px, 1.5vw, 15px);
@@ -52,8 +51,7 @@
 
         .header h1 {
             color: #ffffff;
-            /* 关键修改：缩小标题字号，原1.4rem~1.8rem → 1.2rem~1.5rem */
-            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem); /* 缩小后的标题字号 */
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             margin-bottom: 5px;
         }
@@ -120,10 +118,10 @@
 
         /* 核心容器：列表/详情切换，占满剩余高度 */
         .content-container {
-            flex: 1; /* 填满剩余视口高度，不超出屏幕 */
+            flex: 1;
             border-radius: 14px;
             position: relative;
-            overflow: hidden; /* 隐藏层级切换时的溢出内容 */
+            overflow: hidden;
         }
 
         /* 公告列表层：默认显示，填满容器 */
@@ -139,7 +137,7 @@
                 6px 6px 12px rgba(0, 0, 0, 0.3),
                 inset 2px 2px 3px rgba(60, 60, 60, 0.2),
                 inset -2px -2px 3px rgba(0, 0, 0, 0.5);
-            overflow-y: auto; /* 列表超出时纵向滚动，保持单屏 */
+            overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #383838 #1e1e1e;
             display: flex;
@@ -149,12 +147,13 @@
             top: 0;
             left: 0;
             z-index: 10;
-            transition: transform 0.3s ease;
+            /* 确保默认显示 */
+            display: flex;
         }
 
         /* 列表层隐藏（切换到详情层） */
-        .notice-list-layer.hidden {
-            transform: translateX(-100%); /* 左移隐藏，横屏切换更自然 */
+        .notice-list-layer.hide {
+            display: none; /* 改用display控制，更稳定 */
         }
 
         .notice-list-layer::-webkit-scrollbar {
@@ -247,13 +246,13 @@
             top: 0;
             left: 0;
             z-index: 5;
-            transition: transform 0.3s ease;
-            transform: translateX(100%); /* 初始右移隐藏 */
+            /* 确保默认隐藏 */
+            display: none;
         }
 
         /* 详情层显示（切换自列表层） */
         .notice-detail-layer.show {
-            transform: translateX(0);
+            display: block; /* 改用display控制，更稳定 */
         }
 
         .notice-detail-layer::-webkit-scrollbar {
@@ -378,37 +377,53 @@
             .content-container {
                 max-height: 60vh;
             }
-            .notice-detail-layer {
-                transform: translateY(100%);
-            }
-            .notice-detail-layer.show {
-                transform: translateY(0);
-            }
-            .notice-list-layer.hidden {
-                transform: translateY(-100%);
-            }
         }
     </style>
 </head>
 <body>
-    <!-- ========== 文字配置区（无需改动结构，仅改文字） ========== -->
+    <div class="page-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>公告中心</h1>
+            <p>横屏专用 · 点选查看详情</p>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <button class="active" data-type="all">全部公告</button>
+            <button data-type="system">系统通知</button>
+            <button data-type="activity">活动公告</button>
+            <button data-type="notice">重要通知</button>
+        </div>
+
+        <!-- 核心内容容器 -->
+        <div class="content-container">
+            <!-- 公告列表层 -->
+            <div class="notice-list-layer" id="noticeList">
+                <!-- 公告项将通过JS动态生成 -->
+            </div>
+
+            <!-- 公告详情层 -->
+            <div class="notice-detail-layer" id="noticeDetail">
+                <button class="back-btn" id="backBtn">← 返回列表</button>
+                <h2 class="detail-title" id="detailTitle"></h2>
+                <div class="detail-meta">
+                    <span class="detail-time" id="detailTime"></span>
+                    <span class="detail-category" id="detailCategory"></span>
+                </div>
+                <div class="detail-content" id="detailContent"></div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            © 2025 公告展示平台 版权所有
+        </div>
+    </div>
+
     <script>
+        // 1. 文字配置（集中管理）
         const textConfig = {
-            pageTitle: "公告展示平台",
-            headerTitle: "公告中心", // 标题文字不变，仅通过CSS缩小字号
-            headerSubtitle: "横屏专用 · 点选查看详情",
-            copyrightText: "© 2025 公告展示平台 版权所有",
-            backBtnText: "返回列表",
-            backBtnIcon: "←",
-            
-            filterButtons: [
-                { type: "all", text: "全部公告" },
-                { type: "system", text: "系统通知" },
-                { type: "activity", text: "活动公告" },
-                { type: "notice", text: "重要通知" }
-            ],
-            
-            stickyTag: "置顶",
             noticeList: [
                 {
                     id: 1,
@@ -423,91 +438,52 @@
                     id: 2,
                     isSticky: false,
                     type: "activity",
-                    title: "测试公告",
+                    title: "测试公告1",
                     time: "2025-12-22",
                     category: "活动公告",
-                    content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
+                    content: "测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1"
                 },
                 {
                     id: 3,
                     isSticky: false,
                     type: "system",
-                    title: "测试公告",
+                    title: "测试公告2",
                     time: "2025-12-20",
                     category: "系统通知",
-                    content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
+                    content: "测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2"
                 },
                 {
                     id: 4,
                     isSticky: false,
                     type: "notice",
-                    title: "测试公告",
+                    title: "测试公告3",
                     time: "2025-12-18",
                     category: "重要通知",
-                    content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
-                },
-                {
-                    id: 5,
-                    isSticky: false,
-                    type: "activity",
-                    title: "测试公告",
-                    time: "2025-12-16",
-                    category: "活动公告",
-                    content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
+                    content: "测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3"
                 }
             ]
         };
 
-        // 全局变量：存储当前选中的公告
-        let currentNotice = null;
+        // 2. 获取DOM元素（提前获取，确保存在）
+        const noticeListEl = document.getElementById('noticeList');
+        const noticeDetailEl = document.getElementById('noticeDetail');
+        const backBtnEl = document.getElementById('backBtn');
+        const detailTitleEl = document.getElementById('detailTitle');
+        const detailTimeEl = document.getElementById('detailTime');
+        const detailCategoryEl = document.getElementById('detailCategory');
+        const detailContentEl = document.getElementById('detailContent');
+        const filterBtnsEl = document.querySelectorAll('.filter-bar button');
 
-        // 页面渲染函数
-        function renderPage() {
-            // 1. 设置页面标题
-            document.title = textConfig.pageTitle;
-
-            // 2. 创建页面容器
-            const pageContainer = document.createElement('div');
-            pageContainer.className = 'page-container';
-            document.body.appendChild(pageContainer);
-
-            // 3. 渲染头部
-            const header = document.createElement('div');
-            header.className = 'header';
-            header.innerHTML = `
-                <h1>${textConfig.headerTitle}</h1>
-                <p>${textConfig.headerSubtitle}</p>
-            `;
-            pageContainer.appendChild(header);
-
-            // 4. 渲染筛选栏
-            const filterBar = document.createElement('div');
-            filterBar.className = 'filter-bar';
-            textConfig.filterButtons.forEach((btn, index) => {
-                const button = document.createElement('button');
-                button.className = index === 0 ? 'active' : '';
-                button.setAttribute('data-type', btn.type);
-                button.textContent = btn.text;
-                filterBar.appendChild(button);
-            });
-            pageContainer.appendChild(filterBar);
-
-            // 5. 渲染核心内容容器（列表+详情）
-            const contentContainer = document.createElement('div');
-            contentContainer.className = 'content-container';
-            pageContainer.appendChild(contentContainer);
-
-            // 6. 渲染公告列表层
-            const listLayer = document.createElement('div');
-            listLayer.className = 'notice-list-layer';
-            // 生成公告列表项
+        // 3. 初始化公告列表
+        function initNoticeList() {
+            noticeListEl.innerHTML = ''; // 清空原有内容
             textConfig.noticeList.forEach(notice => {
-                const item = document.createElement('div');
-                item.className = `notice-item ${notice.isSticky ? 'sticky' : ''}`;
-                item.setAttribute('data-id', notice.id);
-                item.innerHTML = `
+                const noticeItem = document.createElement('div');
+                noticeItem.className = `notice-item ${notice.isSticky ? 'sticky' : ''}`;
+                noticeItem.dataset.id = notice.id; // 存储公告ID
+                noticeItem.innerHTML = `
                     <div class="notice-item-title">
-                        ${notice.isSticky ? `<span class="sticky-tag">${textConfig.stickyTag}</span>` : ''}
+                        ${notice.isSticky ? '<span class="sticky-tag">置顶</span>' : ''}
                         ${notice.title}
                     </div>
                     <div class="notice-item-meta">
@@ -515,102 +491,58 @@
                         <span>分类：${notice.category}</span>
                     </div>
                 `;
-                listLayer.appendChild(item);
-            });
-            contentContainer.appendChild(listLayer);
-
-            // 7. 渲染公告详情层
-            const detailLayer = document.createElement('div');
-            detailLayer.className = 'notice-detail-layer';
-            // 详情层结构（先占位，点选后填充内容）
-            detailLayer.innerHTML = `
-                <button class="back-btn">${textConfig.backBtnIcon} ${textConfig.backBtnText}</button>
-                <h2 class="detail-title"></h2>
-                <div class="detail-meta">
-                    <span class="detail-time"></span>
-                    <span class="detail-category"></span>
-                </div>
-                <div class="detail-content"></div>
-            `;
-            contentContainer.appendChild(detailLayer);
-
-            // 8. 渲染底部
-            const footer = document.createElement('div');
-            footer.className = 'footer';
-            footer.textContent = textConfig.copyrightText;
-            pageContainer.appendChild(footer);
-
-            // ========== 绑定层级切换事件 ==========
-            // 公告项点选：切换到详情层
-            const noticeItems = document.querySelectorAll('.notice-item');
-            const backBtn = document.querySelector('.back-btn');
-            const detailTitle = document.querySelector('.detail-title');
-            const detailTime = document.querySelector('.detail-time');
-            const detailCategory = document.querySelector('.detail-category');
-            const detailContent = document.querySelector('.detail-content');
-
-            noticeItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const noticeId = parseInt(this.getAttribute('data-id'));
+                // 绑定点击事件（直接绑定到每个项，确保生效）
+                noticeItem.addEventListener('click', function() {
+                    const noticeId = parseInt(this.dataset.id);
                     // 查找对应公告
-                    currentNotice = textConfig.noticeList.find(notice => notice.id === noticeId);
-                    if (currentNotice) {
+                    const targetNotice = textConfig.noticeList.find(item => item.id === noticeId);
+                    if (targetNotice) {
                         // 填充详情内容
-                        detailTitle.textContent = currentNotice.title;
-                        detailTime.textContent = `发布时间：${currentNotice.time}`;
-                        detailCategory.textContent = `分类：${currentNotice.category}`;
-                        detailContent.textContent = currentNotice.content;
-                        // 切换层级显示
-                        listLayer.classList.add('hidden');
-                        detailLayer.classList.add('show');
+                        detailTitleEl.textContent = targetNotice.title;
+                        detailTimeEl.textContent = `发布时间：${targetNotice.time}`;
+                        detailCategoryEl.textContent = `分类：${targetNotice.category}`;
+                        detailContentEl.textContent = targetNotice.content;
+                        // 切换层级
+                        noticeListEl.classList.add('hide');
+                        noticeDetailEl.classList.add('show');
+                    }
+                });
+                noticeListEl.appendChild(noticeItem);
+            });
+        }
+
+        // 4. 绑定返回按钮事件
+        backBtnEl.addEventListener('click', function() {
+            noticeListEl.classList.remove('hide');
+            noticeDetailEl.classList.remove('show');
+        });
+
+        // 5. 绑定筛选事件
+        filterBtnsEl.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 切换筛选按钮激活状态
+                filterBtnsEl.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const targetType = this.dataset.type;
+
+                // 筛选公告项
+                const noticeItems = document.querySelectorAll('.notice-item');
+                noticeItems.forEach(item => {
+                    const noticeId = parseInt(item.dataset.id);
+                    const targetNotice = textConfig.noticeList.find(i => i.id === noticeId);
+                    if (targetType === 'all' || targetNotice.type === targetType) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
                     }
                 });
             });
+        });
 
-            // 返回按钮：切换回列表层
-            backBtn.addEventListener('click', function() {
-                listLayer.classList.remove('hidden');
-                detailLayer.classList.remove('show');
-                currentNotice = null;
-            });
-
-            // ========== 绑定筛选事件 ==========
-            const filterBtns = document.querySelectorAll('.filter-bar button');
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    const targetType = this.getAttribute('data-type');
-                    // 筛选列表项
-                    noticeItems.forEach(item => {
-                        const itemType = textConfig.noticeList.find(notice => notice.id === parseInt(item.getAttribute('data-id'))).type;
-                        if (targetType === 'all' || itemType === targetType) {
-                            item.style.display = 'block';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                });
-            });
-
-            // ========== 移动端触摸反馈 ==========
-            if ('ontouchstart' in window) {
-                const clickableElements = document.querySelectorAll('.filter-bar button, .notice-item, .back-btn');
-                clickableElements.forEach(el => {
-                    el.addEventListener('touchstart', function() {
-                        this.style.opacity = '0.8';
-                    });
-                    el.addEventListener('touchend', function() {
-                        setTimeout(() => {
-                            this.style.opacity = '1';
-                        }, 100);
-                    });
-                });
-            }
-        }
-
-        // 页面加载完成后渲染
-        window.onload = renderPage;
+        // 6. 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            initNoticeList(); // 初始化公告列表
+        });
     </script>
 </body>
 </html>
