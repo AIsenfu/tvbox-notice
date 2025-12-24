@@ -2,47 +2,200 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公告中心（纯静态+筛选生效）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="screen-orientation" content="landscape">
+    <title>公告中心（手机横屏优化版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
-        body { background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
-        .page-container { max-width: 1000px; margin: 0 auto; max-height: 95vh; display: flex; flex-direction: column; gap: 15px; }
         
-        /* 头部 */
-        .header h1 { text-align: center; font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
-        .header p { text-align: center; color: #999; font-size: 0.9rem; }
+        /* 强制横屏适配 + 禁止缩放 */
+        body { 
+            background: #121212; 
+            color: #e0e0e0; 
+            padding: 10px; 
+            min-height: 100vh;
+            /* 横屏适配核心：根据屏幕宽高比调整布局 */
+            @media (aspect-ratio < 1) { /* 竖屏提示 */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                font-size: 1.2rem;
+                color: #999;
+                text-align: center;
+                padding: 20px;
+            }
+        }
+
+        /* 竖屏隐藏内容，只显示提示 */
+        .page-container {
+            max-width: 100%;
+            margin: 0 auto;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* 缩小间距，适配手机横屏宽度 */
+            
+            @media (aspect-ratio < 1) {
+                display: none;
+            }
+        }
+
+        /* 竖屏提示样式 */
+        .portrait-tip {
+            display: none;
+            @media (aspect-ratio < 1) {
+                display: block;
+            }
+        }
+
+        /* 头部优化：紧凑布局，适配横屏 */
+        .header h1 { 
+            text-align: center; 
+            font-size: 1.3rem; /* 手机横屏适配字号 */
+            color: #fff; 
+            margin-bottom: 3px; 
+        }
+        .header p { 
+            text-align: center; 
+            color: #999; 
+            font-size: 0.8rem; 
+        }
         
-        /* 筛选栏 */
-        .filter-bar { display: flex; gap: 10px; padding: 12px; background: #1e1e1e; border-radius: 12px; }
-        .filter-bar button { padding: 8px 16px; background: #2d2d2d; border: none; border-radius: 20px; color: #e0e0e0; cursor: pointer; }
-        .filter-bar button.active { background: #6200ee; color: #fff; }
+        /* 筛选栏优化：滚动适配 + 按钮紧凑 */
+        .filter-bar { 
+            display: flex; 
+            gap: 8px; 
+            padding: 10px; 
+            background: #1e1e1e; 
+            border-radius: 10px;
+            overflow-x: auto; /* 按钮过多时横向滚动，不换行 */
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* 手机顺滑滚动 */
+        }
+        .filter-bar button { 
+            padding: 7px 14px; /* 紧凑按钮，适配手机点击 */
+            background: #2d2d2d; 
+            border: none; 
+            border-radius: 18px; 
+            color: #e0e0e0; 
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .filter-bar button.active { 
+            background: #6200ee; 
+            color: #fff; 
+            transform: scale(1.05); /* 激活态轻微放大，更醒目 */
+        }
+        .filter-bar button:hover {
+            background: #383838;
+        }
         
-        /* 内容容器 */
-        .content-container { flex: 1; border-radius: 12px; overflow: hidden; background: #1e1e1e; padding: 15px; }
+        /* 内容容器优化：高度适配 + 顺滑滚动 */
+        .content-container { 
+            flex: 1; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            background: #1e1e1e; 
+            padding: 12px;
+            height: calc(100vh - 120px); /* 固定高度，适配手机横屏可视区域 */
+        }
         
-        /* 公告列表 */
-        .notice-list .notice-item { padding: 15px; background: #232323; border-radius: 10px; margin-bottom: 12px; cursor: pointer; border-left: 4px solid #2d2d2d; }
-        .notice-list .notice-item.sticky { border-left: 4px solid #ffc107; background: #272720; }
-        .notice-list .notice-item.system { /* 系统通知样式标识 */ }
-        .notice-list .notice-item.activity { /* 活动公告样式标识 */ }
-        .notice-list .notice-item.notice { /* 重要通知样式标识 */ }
-        .notice-list .sticky-tag { background: #ffc107; color: #121212; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-right: 8px; }
-        .notice-list .title { color: #fff; font-size: 1rem; margin-bottom: 8px; }
-        .notice-list .meta { color: #999; font-size: 0.8rem; display: flex; gap: 15px; }
+        /* 公告列表优化：间距紧凑 + 点击反馈 */
+        .notice-list .notice-item { 
+            padding: 12px; 
+            background: #232323; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            border-left: 3px solid #2d2d2d;
+            transition: transform 0.2s ease; /* 点击缩放反馈 */
+        }
+        .notice-list .notice-item:active {
+            transform: scale(0.98); /* 手机点击按压反馈 */
+        }
+        .notice-list .notice-item.sticky { 
+            border-left: 3px solid #ffc107; 
+            background: #272720; 
+        }
+        .notice-list .sticky-tag { 
+            background: #ffc107; 
+            color: #121212; 
+            padding: 2px 6px; 
+            border-radius: 8px; 
+            font-size: 0.75rem; 
+            margin-right: 6px; 
+        }
+        .notice-list .title { 
+            color: #fff; 
+            font-size: 0.95rem; 
+            margin-bottom: 6px; 
+        }
+        .notice-list .meta { 
+            color: #999; 
+            font-size: 0.75rem; 
+            display: flex; 
+            gap: 12px; 
+        }
         
-        /* 公告详情（默认隐藏） */
+        /* 公告详情优化：返回按钮更大 + 内容适配 */
         .notice-detail { display: none; }
-        .back-btn { padding: 10px 20px; background: #2d2d2d; border: none; border-radius: 10px; color: #e0e0e0; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .detail-title { color: #fff; font-size: 1.2rem; margin-bottom: 15px; }
-        .detail-meta { color: #999; font-size: 0.9rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #2d2d2d; }
-        .detail-content { color: #ccc; font-size: 1rem; line-height: 1.8; }
+        .back-btn { 
+            padding: 10px 18px; /* 更大按钮，方便手机点击 */
+            background: #2d2d2d; 
+            border: none; 
+            border-radius: 10px; 
+            color: #e0e0e0; 
+            cursor: pointer; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.9rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: background 0.2s ease;
+        }
+        .back-btn:active {
+            background: #383838;
+        }
+        .detail-title { 
+            color: #fff; 
+            font-size: 1.1rem; 
+            margin-bottom: 12px; 
+        }
+        .detail-meta { 
+            color: #999; 
+            font-size: 0.85rem; 
+            margin-bottom: 15px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #2d2d2d; 
+        }
+        .detail-content { 
+            color: #ccc; 
+            font-size: 0.95rem; 
+            line-height: 1.7; /* 行高优化，更易阅读 */
+            text-align: justify; /* 两端对齐，提升可读性 */
+        }
         
-        /* 底部 */
-        .footer { text-align: center; padding: 12px; background: #1e1e1e; border-radius: 12px; color: #777; font-size: 0.8rem; }
+        /* 底部优化：紧凑布局 */
+        .footer { 
+            text-align: center; 
+            padding: 8px; 
+            background: #1e1e1e; 
+            border-radius: 10px; 
+            color: #777; 
+            font-size: 0.75rem; 
+        }
     </style>
 </head>
 <body>
+    <!-- 竖屏提示：引导用户横屏 -->
+    <div class="portrait-tip">
+        <p>请将手机横屏使用，获得更好体验</p>
+        <p>（横屏后可查看公告列表）</p>
+    </div>
+
     <div class="page-container">
         <!-- 头部 -->
         <div class="header">
@@ -50,7 +203,7 @@
             <p>横屏专用 · 点选查看详情</p>
         </div>
 
-        <!-- 筛选栏：添加内联点击事件，切换激活状态+筛选公告 -->
+        <!-- 筛选栏 -->
         <div class="filter-bar">
             <button class="active" id="filterAll" onclick="setActive('filterAll');showAllNotice()">全部公告</button>
             <button id="filterSystem" onclick="setActive('filterSystem');showNoticeByType('system')">系统通知</button>
@@ -60,9 +213,9 @@
 
         <!-- 内容容器 -->
         <div class="content-container">
-            <!-- 公告列表（默认显示） -->
+            <!-- 公告列表 -->
             <div class="notice-list" id="list">
-                <!-- 公告1：重要通知（notice类型） -->
+                <!-- 公告1：重要通知 -->
                 <div class="notice-item sticky notice" id="item1" onclick="document.getElementById('list').style.display='none';document.getElementById('detail1').style.display='block'">
                     <div class="title">
                         <span class="sticky-tag">置顶</span>
@@ -74,7 +227,7 @@
                     </div>
                 </div>
 
-                <!-- 公告2：活动公告（activity类型） -->
+                <!-- 公告2：活动公告 -->
                 <div class="notice-item activity" id="item2" onclick="document.getElementById('list').style.display='none';document.getElementById('detail2').style.display='block'">
                     <div class="title">测试公告1</div>
                     <div class="meta">
@@ -83,7 +236,7 @@
                     </div>
                 </div>
 
-                <!-- 公告3：系统通知（system类型） -->
+                <!-- 公告3：系统通知 -->
                 <div class="notice-item system" id="item3" onclick="document.getElementById('list').style.display='none';document.getElementById('detail3').style.display='block'">
                     <div class="title">测试公告2</div>
                     <div class="meta">
@@ -92,7 +245,7 @@
                     </div>
                 </div>
 
-                <!-- 公告4：重要通知（notice类型） -->
+                <!-- 公告4：重要通知 -->
                 <div class="notice-item notice" id="item4" onclick="document.getElementById('list').style.display='none';document.getElementById('detail4').style.display='block'">
                     <div class="title">测试公告3</div>
                     <div class="meta">
@@ -141,16 +294,13 @@
         </div>
     </div>
 
-    <!-- 筛选功能核心脚本（内联，确保生效） -->
     <script>
         // 切换筛选按钮激活状态
         function setActive(btnId) {
-            // 移除所有按钮的active类
             document.getElementById('filterAll').classList.remove('active');
             document.getElementById('filterSystem').classList.remove('active');
             document.getElementById('filterActivity').classList.remove('active');
             document.getElementById('filterNotice').classList.remove('active');
-            // 给当前点击的按钮添加active类
             document.getElementById(btnId).classList.add('active');
         }
 
@@ -164,20 +314,18 @@
 
         // 按类型显示公告
         function showNoticeByType(type) {
-            // 先隐藏所有公告
             document.getElementById('item1').style.display = 'none';
             document.getElementById('item2').style.display = 'none';
             document.getElementById('item3').style.display = 'none';
             document.getElementById('item4').style.display = 'none';
             
-            // 根据类型显示对应公告
             if (type === 'system') {
-                document.getElementById('item3').style.display = 'block'; // 系统通知
+                document.getElementById('item3').style.display = 'block';
             } else if (type === 'activity') {
-                document.getElementById('item2').style.display = 'block'; // 活动公告
+                document.getElementById('item2').style.display = 'block';
             } else if (type === 'notice') {
-                document.getElementById('item1').style.display = 'block'; // 重要通知（置顶）
-                document.getElementById('item4').style.display = 'block'; // 重要通知
+                document.getElementById('item1').style.display = 'block';
+                document.getElementById('item4').style.display = 'block';
             }
         }
     </script>
