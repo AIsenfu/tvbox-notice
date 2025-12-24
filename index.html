@@ -2,381 +2,176 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公告展示平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告中心（点击生效版）</title>
     <style>
-        /* 全局样式：横屏优先适配 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-family: "Microsoft YaHei", sans-serif;
         }
 
         body {
-            background: #121212; /* 简化背景，确保稳定加载 */
+            background: #121212;
             color: #e0e0e0;
-            line-height: 1.6;
+            padding: 15px;
             min-height: 100vh;
-            padding: clamp(10px, 2vw, 15px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        /* 页面容器：限制最大宽度，适配横屏平板/手机 */
         .page-container {
-            width: 100%;
-            max-width: 1200px;
+            max-width: 1000px;
+            margin: 0 auto;
             max-height: 95vh;
             display: flex;
             flex-direction: column;
-            gap: clamp(10px, 1.5vw, 15px);
-        }
-
-        /* 头部：毛玻璃+拟态，紧凑布局 */
-        .header {
-            text-align: center;
-            padding: clamp(12px, 2vw, 15px);
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(50, 50, 50, 0.3);
-            border-radius: 16px;
-            box-shadow: 
-                8px 8px 16px rgba(0, 0, 0, 0.4),
-                inset 2px 2px 4px rgba(60, 60, 60, 0.2),
-                inset -2px -2px 4px rgba(0, 0, 0, 0.6);
+            gap: 15px;
         }
 
         .header h1 {
-            color: #ffffff;
-            font-size: clamp(1.2rem, 2.5vw, 1.5rem); /* 缩小后的标题字号 */
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            font-size: 1.4rem; /* 缩小后的标题 */
+            color: #fff;
             margin-bottom: 5px;
         }
 
         .header p {
-            color: #9e9e9e;
-            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
         }
 
-        /* 筛选栏：横屏左对齐，紧凑排列 */
         .filter-bar {
-            padding: clamp(10px, 1.5vw, 12px);
-            border-radius: 12px;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(50, 50, 50, 0.3);
-            box-shadow: 
-                6px 6px 12px rgba(0, 0, 0, 0.3),
-                inset 2px 2px 3px rgba(60, 60, 60, 0.2),
-                inset -2px -2px 3px rgba(0, 0, 0, 0.5);
             display: flex;
-            gap: clamp(8px, 1vw, 10px);
-            align-items: center;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .filter-bar::-webkit-scrollbar {
-            display: none;
+            gap: 10px;
+            padding: 12px;
+            background: #1e1e1e;
+            border-radius: 12px;
         }
 
         .filter-bar button {
-            color: #e0e0e0;
+            padding: 8px 16px;
+            background: #2d2d2d;
             border: none;
-            padding: clamp(6px, 1vw, 8px) clamp(12px, 1.5vw, 16px);
             border-radius: 20px;
+            color: #e0e0e0;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-            white-space: nowrap;
-            background: rgba(45, 45, 45, 0.8);
-            box-shadow: 
-                3px 3px 6px rgba(0, 0, 0, 0.3),
-                inset 1px 1px 2px rgba(70, 70, 70, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
         }
 
         .filter-bar button.active {
-            background: rgba(98, 0, 238, 0.8);
-            color: #ffffff;
-            box-shadow: 
-                inset 3px 3px 6px rgba(0, 0, 0, 0.3),
-                inset -1px -1px 2px rgba(255, 255, 255, 0.1);
+            background: #6200ee;
+            color: #fff;
         }
 
-        .filter-bar button:hover:not(.active) {
-            background: rgba(56, 56, 56, 0.8);
-            box-shadow: 
-                4px 4px 8px rgba(0, 0, 0, 0.35),
-                inset 1px 1px 2px rgba(70, 70, 70, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
-        }
-
-        /* 核心容器：列表/详情切换，占满剩余高度 */
         .content-container {
             flex: 1;
-            border-radius: 14px;
             position: relative;
+            height: 60vh;
+            border-radius: 12px;
             overflow: hidden;
         }
 
-        /* 公告列表层：默认显示，填满容器 */
-        .notice-list-layer {
+        /* 列表层 */
+        .notice-list {
             width: 100%;
             height: 100%;
-            padding: clamp(10px, 1.5vw, 15px);
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(50, 50, 50, 0.3);
-            box-shadow: 
-                6px 6px 12px rgba(0, 0, 0, 0.3),
-                inset 2px 2px 3px rgba(60, 60, 60, 0.2),
-                inset -2px -2px 3px rgba(0, 0, 0, 0.5);
+            background: #1e1e1e;
+            padding: 15px;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #383838 #1e1e1e;
-            display: flex;
-            flex-direction: column;
-            gap: clamp(10px, 1.2vw, 12px);
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            /* 确保默认显示 */
-            display: flex;
+            display: block;
         }
 
-        /* 列表层隐藏（切换到详情层） */
-        .notice-list-layer.hide {
-            display: none; /* 改用display控制，更稳定 */
-        }
-
-        .notice-list-layer::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .notice-list-layer::-webkit-scrollbar-thumb {
-            background-color: #383838;
-            border-radius: 3px;
-        }
-
-        .notice-list-layer::-webkit-scrollbar-track {
-            background-color: #1e1e1e;
-        }
-
-        /* 公告列表项：可点选，紧凑布局 */
         .notice-item {
-            padding: clamp(12px, 1.5vw, 15px);
-            border-radius: 12px;
-            border-left: 4px solid rgba(45, 45, 45, 0.5);
-            background: rgba(35, 35, 35, 0.7);
-            box-shadow: 
-                3px 3px 6px rgba(0, 0, 0, 0.2),
-                inset 1px 1px 2px rgba(60, 60, 60, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            background: #232323;
+            border-radius: 10px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            border-left: 4px solid #2d2d2d;
         }
 
         .notice-item.sticky {
-            border-left: 4px solid rgba(255, 193, 7, 0.8);
-            background: rgba(40, 40, 30, 0.8);
+            border-left: 4px solid #ffc107;
+            background: #272720;
         }
 
-        .notice-item:hover {
-            transform: scale(1.005);
-            box-shadow: 
-                5px 5px 10px rgba(0, 0, 0, 0.3),
-                inset 1px 1px 2px rgba(60, 60, 60, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
-        }
-
-        .sticky-tag {
-            display: inline-block;
-            background: rgba(255, 193, 7, 0.9);
+        .notice-item .sticky-tag {
+            background: #ffc107;
             color: #121212;
-            font-size: clamp(0.7rem, 1vw, 0.8rem);
             padding: 2px 8px;
             border-radius: 10px;
+            font-size: 0.8rem;
             margin-right: 8px;
-            font-weight: bold;
-            box-shadow: 
-                2px 2px 4px rgba(0, 0, 0, 0.2),
-                inset 1px 1px 2px rgba(255, 255, 255, 0.2);
         }
 
-        .notice-item-title {
-            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-            color: #ffffff;
-            margin-bottom: 6px;
+        .notice-item .title {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .notice-item .meta {
+            color: #999;
+            font-size: 0.8rem;
             display: flex;
-            align-items: center;
-            word-break: break-word;
+            gap: 15px;
         }
 
-        .notice-item-meta {
-            display: flex;
-            gap: clamp(10px, 1.2vw, 12px);
-            color: #9e9e9e;
-            font-size: clamp(0.7rem, 1vw, 0.8rem);
-        }
-
-        /* 公告详情层：默认隐藏，填满容器 */
-        .notice-detail-layer {
+        /* 详情层 */
+        .notice-detail {
             width: 100%;
             height: 100%;
-            padding: clamp(15px, 2vw, 20px);
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(50, 50, 50, 0.3);
-            box-shadow: 
-                6px 6px 12px rgba(0, 0, 0, 0.3),
-                inset 2px 2px 3px rgba(60, 60, 60, 0.2),
-                inset -2px -2px 3px rgba(0, 0, 0, 0.5);
+            background: #1e1e1e;
+            padding: 20px;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #383838 #1e1e1e;
             position: absolute;
             top: 0;
             left: 0;
-            z-index: 5;
-            /* 确保默认隐藏 */
-            display: none;
+            display: none; /* 默认隐藏 */
         }
 
-        /* 详情层显示（切换自列表层） */
-        .notice-detail-layer.show {
-            display: block; /* 改用display控制，更稳定 */
-        }
-
-        .notice-detail-layer::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .notice-detail-layer::-webkit-scrollbar-thumb {
-            background-color: #383838;
-            border-radius: 3px;
-        }
-
-        .notice-detail-layer::-webkit-scrollbar-track {
-            background-color: #1e1e1e;
-        }
-
-        /* 返回按钮：详情层顶部，拟态风格 */
         .back-btn {
+            padding: 8px 16px;
+            background: #2d2d2d;
+            border: none;
+            border-radius: 10px;
+            color: #e0e0e0;
+            cursor: pointer;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(45, 45, 45, 0.8);
-            color: #e0e0e0;
-            border: none;
-            padding: clamp(8px, 1.2vw, 10px) clamp(15px, 1.5vw, 18px);
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-            box-shadow: 
-                3px 3px 6px rgba(0, 0, 0, 0.3),
-                inset 1px 1px 2px rgba(70, 70, 70, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
-            margin-bottom: clamp(15px, 2vw, 20px);
-            transition: all 0.2s ease;
         }
 
-        .back-btn:hover {
-            background: rgba(56, 56, 56, 0.8);
-            box-shadow: 
-                4px 4px 8px rgba(0, 0, 0, 0.35),
-                inset 1px 1px 2px rgba(70, 70, 70, 0.2),
-                inset -1px -1px 2px rgba(0, 0, 0, 0.4);
-        }
-
-        .back-btn:active {
-            box-shadow: 
-                inset 3px 3px 6px rgba(0, 0, 0, 0.25),
-                inset -1px -1px 2px rgba(70, 70, 70, 0.2);
-        }
-
-        /* 详情层内容样式 */
         .detail-title {
-            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
-            color: #ffffff;
-            margin-bottom: clamp(10px, 1.5vw, 15px);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-            word-break: break-word;
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
         }
 
         .detail-meta {
+            color: #999;
+            font-size: 0.9rem;
             display: flex;
-            flex-wrap: wrap;
-            gap: clamp(15px, 2vw, 20px);
-            color: #9e9e9e;
-            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-            margin-bottom: clamp(20px, 2.5vw, 25px);
-            padding-bottom: clamp(10px, 1.5vw, 15px);
-            border-bottom: 1px solid rgba(50, 50, 50, 0.5);
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2d2d2d;
         }
 
         .detail-content {
-            color: #c5c5c5;
-            font-size: clamp(0.9rem, 1.5vw, 1rem);
+            color: #ccc;
+            font-size: 1rem;
             line-height: 1.8;
-            word-break: break-word;
         }
 
-        /* 底部版权：紧凑布局 */
         .footer {
             text-align: center;
-            padding: clamp(10px, 1.5vw, 12px);
-            color: #757575;
-            font-size: clamp(0.7rem, 1vw, 0.8rem);
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(50, 50, 50, 0.3);
+            padding: 12px;
+            background: #1e1e1e;
             border-radius: 12px;
-            box-shadow: 
-                6px 6px 12px rgba(0, 0, 0, 0.3),
-                inset 2px 2px 3px rgba(60, 60, 60, 0.2),
-                inset -2px -2px 3px rgba(0, 0, 0, 0.5);
-        }
-
-        /* 媒体查询：横屏手机（宽高比>1）优化 */
-        @media (aspect-ratio > 1) {
-            .page-container {
-                max-height: 90vh;
-            }
-            .filter-bar {
-                justify-content: flex-start;
-            }
-            .notice-item {
-                padding: 12px 18px;
-            }
-        }
-
-        /* 媒体查询：平板横屏（768px以上，宽高比>1） */
-        @media (min-width: 768px) and (aspect-ratio > 1) {
-            .page-container {
-                max-width: 1000px;
-            }
-            .notice-list-layer {
-                gap: 15px;
-            }
-            .detail-content {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* 兼容竖屏手机（可选，保证基础可用） */
-        @media (aspect-ratio <= 1) {
-            .content-container {
-                max-height: 60vh;
-            }
+            color: #777;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -390,27 +185,61 @@
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
-            <button class="active" data-type="all">全部公告</button>
-            <button data-type="system">系统通知</button>
-            <button data-type="activity">活动公告</button>
-            <button data-type="notice">重要通知</button>
+            <button class="active" id="filterAll">全部公告</button>
+            <button id="filterSystem">系统通知</button>
+            <button id="filterActivity">活动公告</button>
+            <button id="filterNotice">重要通知</button>
         </div>
 
         <!-- 核心内容容器 -->
         <div class="content-container">
-            <!-- 公告列表层 -->
-            <div class="notice-list-layer" id="noticeList">
-                <!-- 公告项将通过JS动态生成 -->
+            <!-- 公告列表（静态写死，确保点击生效） -->
+            <div class="notice-list" id="noticeList">
+                <!-- 公告1（置顶） -->
+                <div class="notice-item sticky" data-id="1" data-type="notice">
+                    <div class="title">
+                        <span class="sticky-tag">置顶</span>
+                        测试公告（置顶）
+                    </div>
+                    <div class="meta">
+                        <span>2025-12-24</span>
+                        <span>重要通知</span>
+                    </div>
+                </div>
+
+                <!-- 公告2 -->
+                <div class="notice-item" data-id="2" data-type="activity">
+                    <div class="title">测试公告1</div>
+                    <div class="meta">
+                        <span>2025-12-22</span>
+                        <span>活动公告</span>
+                    </div>
+                </div>
+
+                <!-- 公告3 -->
+                <div class="notice-item" data-id="3" data-type="system">
+                    <div class="title">测试公告2</div>
+                    <div class="meta">
+                        <span>2025-12-20</span>
+                        <span>系统通知</span>
+                    </div>
+                </div>
+
+                <!-- 公告4 -->
+                <div class="notice-item" data-id="4" data-type="notice">
+                    <div class="title">测试公告3</div>
+                    <div class="meta">
+                        <span>2025-12-18</span>
+                        <span>重要通知</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 公告详情层 -->
-            <div class="notice-detail-layer" id="noticeDetail">
+            <!-- 公告详情（静态结构，JS填充内容） -->
+            <div class="notice-detail" id="noticeDetail">
                 <button class="back-btn" id="backBtn">← 返回列表</button>
                 <h2 class="detail-title" id="detailTitle"></h2>
-                <div class="detail-meta">
-                    <span class="detail-time" id="detailTime"></span>
-                    <span class="detail-category" id="detailCategory"></span>
-                </div>
+                <div class="detail-meta" id="detailMeta"></div>
                 <div class="detail-content" id="detailContent"></div>
             </div>
         </div>
@@ -422,127 +251,105 @@
     </div>
 
     <script>
-        // 1. 文字配置（集中管理）
-        const textConfig = {
-            noticeList: [
-                {
-                    id: 1,
-                    isSticky: true,
-                    type: "notice",
-                    title: "测试公告（置顶）",
-                    time: "2025-12-24",
-                    category: "重要通知",
-                    content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
-                },
-                {
-                    id: 2,
-                    isSticky: false,
-                    type: "activity",
-                    title: "测试公告1",
-                    time: "2025-12-22",
-                    category: "活动公告",
-                    content: "测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1"
-                },
-                {
-                    id: 3,
-                    isSticky: false,
-                    type: "system",
-                    title: "测试公告2",
-                    time: "2025-12-20",
-                    category: "系统通知",
-                    content: "测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2"
-                },
-                {
-                    id: 4,
-                    isSticky: false,
-                    type: "notice",
-                    title: "测试公告3",
-                    time: "2025-12-18",
-                    category: "重要通知",
-                    content: "测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3"
+        // 公告数据（与HTML列表对应）
+        const noticeData = [
+            {
+                id: 1,
+                title: "测试公告（置顶）",
+                meta: "2025-12-24 | 重要通知",
+                content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
+            },
+            {
+                id: 2,
+                title: "测试公告1",
+                meta: "2025-12-22 | 活动公告",
+                content: "测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1"
+            },
+            {
+                id: 3,
+                title: "测试公告2",
+                meta: "2025-12-20 | 系统通知",
+                content: "测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2"
+            },
+            {
+                id: 4,
+                title: "测试公告3",
+                meta: "2025-12-18 | 重要通知",
+                content: "测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3"
+            }
+        ];
+
+        // 获取所有DOM元素（直接获取，无需等待动态渲染）
+        const noticeList = document.getElementById('noticeList');
+        const noticeDetail = document.getElementById('noticeDetail');
+        const backBtn = document.getElementById('backBtn');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailMeta = document.getElementById('detailMeta');
+        const detailContent = document.getElementById('detailContent');
+        const noticeItems = document.querySelectorAll('.notice-item');
+        const filterAll = document.getElementById('filterAll');
+        const filterSystem = document.getElementById('filterSystem');
+        const filterActivity = document.getElementById('filterActivity');
+        const filterNotice = document.getElementById('filterNotice');
+
+        // 1. 公告项点击事件（直接绑定所有已存在的项）
+        noticeItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const noticeId = parseInt(this.dataset.id);
+                // 查找对应数据
+                const targetNotice = noticeData.find(item => item.id === noticeId);
+                if (targetNotice) {
+                    // 填充详情
+                    detailTitle.innerText = targetNotice.title;
+                    detailMeta.innerText = targetNotice.meta;
+                    detailContent.innerText = targetNotice.content;
+                    // 切换显示
+                    noticeList.style.display = 'none';
+                    noticeDetail.style.display = 'block';
                 }
-            ]
-        };
-
-        // 2. 获取DOM元素（提前获取，确保存在）
-        const noticeListEl = document.getElementById('noticeList');
-        const noticeDetailEl = document.getElementById('noticeDetail');
-        const backBtnEl = document.getElementById('backBtn');
-        const detailTitleEl = document.getElementById('detailTitle');
-        const detailTimeEl = document.getElementById('detailTime');
-        const detailCategoryEl = document.getElementById('detailCategory');
-        const detailContentEl = document.getElementById('detailContent');
-        const filterBtnsEl = document.querySelectorAll('.filter-bar button');
-
-        // 3. 初始化公告列表
-        function initNoticeList() {
-            noticeListEl.innerHTML = ''; // 清空原有内容
-            textConfig.noticeList.forEach(notice => {
-                const noticeItem = document.createElement('div');
-                noticeItem.className = `notice-item ${notice.isSticky ? 'sticky' : ''}`;
-                noticeItem.dataset.id = notice.id; // 存储公告ID
-                noticeItem.innerHTML = `
-                    <div class="notice-item-title">
-                        ${notice.isSticky ? '<span class="sticky-tag">置顶</span>' : ''}
-                        ${notice.title}
-                    </div>
-                    <div class="notice-item-meta">
-                        <span>发布时间：${notice.time}</span>
-                        <span>分类：${notice.category}</span>
-                    </div>
-                `;
-                // 绑定点击事件（直接绑定到每个项，确保生效）
-                noticeItem.addEventListener('click', function() {
-                    const noticeId = parseInt(this.dataset.id);
-                    // 查找对应公告
-                    const targetNotice = textConfig.noticeList.find(item => item.id === noticeId);
-                    if (targetNotice) {
-                        // 填充详情内容
-                        detailTitleEl.textContent = targetNotice.title;
-                        detailTimeEl.textContent = `发布时间：${targetNotice.time}`;
-                        detailCategoryEl.textContent = `分类：${targetNotice.category}`;
-                        detailContentEl.textContent = targetNotice.content;
-                        // 切换层级
-                        noticeListEl.classList.add('hide');
-                        noticeDetailEl.classList.add('show');
-                    }
-                });
-                noticeListEl.appendChild(noticeItem);
             });
+        });
+
+        // 2. 返回按钮点击事件
+        backBtn.addEventListener('click', function() {
+            noticeDetail.style.display = 'none';
+            noticeList.style.display = 'block';
+        });
+
+        // 3. 筛选事件（简单生效版）
+        filterAll.addEventListener('click', function() {
+            setActiveFilter(this);
+            noticeItems.forEach(item => item.style.display = 'block');
+        });
+
+        filterSystem.addEventListener('click', function() {
+            setActiveFilter(this);
+            noticeItems.forEach(item => {
+                item.dataset.type === 'system' ? item.style.display = 'block' : item.style.display = 'none';
+            });
+        });
+
+        filterActivity.addEventListener('click', function() {
+            setActiveFilter(this);
+            noticeItems.forEach(item => {
+                item.dataset.type === 'activity' ? item.style.display = 'block' : item.style.display = 'none';
+            });
+        });
+
+        filterNotice.addEventListener('click', function() {
+            setActiveFilter(this);
+            noticeItems.forEach(item => {
+                item.dataset.type === 'notice' ? item.style.display = 'block' : item.style.display = 'none';
+            });
+        });
+
+        // 辅助函数：设置筛选按钮激活状态
+        function setActiveFilter(activeBtn) {
+            [filterAll, filterSystem, filterActivity, filterNotice].forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeBtn.classList.add('active');
         }
-
-        // 4. 绑定返回按钮事件
-        backBtnEl.addEventListener('click', function() {
-            noticeListEl.classList.remove('hide');
-            noticeDetailEl.classList.remove('show');
-        });
-
-        // 5. 绑定筛选事件
-        filterBtnsEl.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 切换筛选按钮激活状态
-                filterBtnsEl.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const targetType = this.dataset.type;
-
-                // 筛选公告项
-                const noticeItems = document.querySelectorAll('.notice-item');
-                noticeItems.forEach(item => {
-                    const noticeId = parseInt(item.dataset.id);
-                    const targetNotice = textConfig.noticeList.find(i => i.id === noticeId);
-                    if (targetType === 'all' || targetNotice.type === targetType) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            });
-        });
-
-        // 6. 页面加载完成后初始化
-        window.addEventListener('DOMContentLoaded', function() {
-            initNoticeList(); // 初始化公告列表
-        });
     </script>
 </body>
 </html>
