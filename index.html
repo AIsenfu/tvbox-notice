@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公告中心（点击生效版）</title>
+    <title>公告中心（带返回按钮）</title>
     <style>
         * {
             margin: 0;
@@ -130,8 +130,9 @@
             display: none; /* 默认隐藏 */
         }
 
+        /* 关键：强化返回按钮样式，确保显示 */
         .back-btn {
-            padding: 8px 16px;
+            padding: 10px 20px; /* 增大内边距，按钮更明显 */
             background: #2d2d2d;
             border: none;
             border-radius: 10px;
@@ -140,7 +141,13 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 0.9rem; /* 增大字体 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* 添加阴影，更醒目 */
+        }
+
+        .back-btn:hover {
+            background: #383838; /* 悬浮效果，提升交互感 */
         }
 
         .detail-title {
@@ -235,9 +242,10 @@
                 </div>
             </div>
 
-            <!-- 公告详情（静态结构，JS填充内容） -->
+            <!-- 公告详情（静态结构，包含清晰的返回按钮） -->
             <div class="notice-detail" id="noticeDetail">
-                <button class="back-btn" id="backBtn">← 返回列表</button>
+                <!-- 返回按钮：明确显示，样式强化 -->
+                <button class="back-btn" id="backBtn">← 返回公告列表</button>
                 <h2 class="detail-title" id="detailTitle"></h2>
                 <div class="detail-meta" id="detailMeta"></div>
                 <div class="detail-content" id="detailContent"></div>
@@ -310,7 +318,7 @@
             });
         });
 
-        // 2. 返回按钮点击事件
+        // 2. 返回按钮点击事件（确保功能正常）
         backBtn.addEventListener('click', function() {
             noticeDetail.style.display = 'none';
             noticeList.style.display = 'block';
