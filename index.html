@@ -3,183 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公告中心（带返回按钮）</title>
+    <title>公告中心（纯静态）</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
-
-        body {
-            background: #121212;
-            color: #e0e0e0;
-            padding: 15px;
-            min-height: 100vh;
-        }
-
-        .page-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            max-height: 95vh;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .header h1 {
-            text-align: center;
-            font-size: 1.4rem; /* 缩小后的标题 */
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            text-align: center;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
-        .filter-bar {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            background: #1e1e1e;
-            border-radius: 12px;
-        }
-
-        .filter-bar button {
-            padding: 8px 16px;
-            background: #2d2d2d;
-            border: none;
-            border-radius: 20px;
-            color: #e0e0e0;
-            cursor: pointer;
-        }
-
-        .filter-bar button.active {
-            background: #6200ee;
-            color: #fff;
-        }
-
-        .content-container {
-            flex: 1;
-            position: relative;
-            height: 60vh;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        /* 列表层 */
-        .notice-list {
-            width: 100%;
-            height: 100%;
-            background: #1e1e1e;
-            padding: 15px;
-            overflow-y: auto;
-            display: block;
-        }
-
-        .notice-item {
-            padding: 15px;
-            background: #232323;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            border-left: 4px solid #2d2d2d;
-        }
-
-        .notice-item.sticky {
-            border-left: 4px solid #ffc107;
-            background: #272720;
-        }
-
-        .notice-item .sticky-tag {
-            background: #ffc107;
-            color: #121212;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-right: 8px;
-        }
-
-        .notice-item .title {
-            color: #fff;
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-
-        .notice-item .meta {
-            color: #999;
-            font-size: 0.8rem;
-            display: flex;
-            gap: 15px;
-        }
-
-        /* 详情层 */
-        .notice-detail {
-            width: 100%;
-            height: 100%;
-            background: #1e1e1e;
-            padding: 20px;
-            overflow-y: auto;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: none; /* 默认隐藏 */
-        }
-
-        /* 关键：强化返回按钮样式，确保显示 */
-        .back-btn {
-            padding: 10px 20px; /* 增大内边距，按钮更明显 */
-            background: #2d2d2d;
-            border: none;
-            border-radius: 10px;
-            color: #e0e0e0;
-            cursor: pointer;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem; /* 增大字体 */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* 添加阴影，更醒目 */
-        }
-
-        .back-btn:hover {
-            background: #383838; /* 悬浮效果，提升交互感 */
-        }
-
-        .detail-title {
-            color: #fff;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
-
-        .detail-meta {
-            color: #999;
-            font-size: 0.9rem;
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #2d2d2d;
-        }
-
-        .detail-content {
-            color: #ccc;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 12px;
-            background: #1e1e1e;
-            border-radius: 12px;
-            color: #777;
-            font-size: 0.8rem;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
+        body { background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
+        .page-container { max-width: 1000px; margin: 0 auto; max-height: 95vh; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* 头部 */
+        .header h1 { text-align: center; font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
+        .header p { text-align: center; color: #999; font-size: 0.9rem; }
+        
+        /* 筛选栏 */
+        .filter-bar { display: flex; gap: 10px; padding: 12px; background: #1e1e1e; border-radius: 12px; }
+        .filter-bar button { padding: 8px 16px; background: #2d2d2d; border: none; border-radius: 20px; color: #e0e0e0; cursor: pointer; }
+        .filter-bar button.active { background: #6200ee; color: #fff; }
+        
+        /* 内容容器 */
+        .content-container { flex: 1; border-radius: 12px; overflow: hidden; background: #1e1e1e; padding: 15px; }
+        
+        /* 公告列表 */
+        .notice-list .notice-item { padding: 15px; background: #232323; border-radius: 10px; margin-bottom: 12px; cursor: pointer; border-left: 4px solid #2d2d2d; }
+        .notice-list .notice-item.sticky { border-left: 4px solid #ffc107; background: #272720; }
+        .notice-list .sticky-tag { background: #ffc107; color: #121212; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-right: 8px; }
+        .notice-list .title { color: #fff; font-size: 1rem; margin-bottom: 8px; }
+        .notice-list .meta { color: #999; font-size: 0.8rem; display: flex; gap: 15px; }
+        
+        /* 公告详情（默认隐藏，点击公告后手动切换显示） */
+        .notice-detail { display: none; }
+        .notice-detail.show { display: block; }
+        .back-btn { padding: 10px 20px; background: #2d2d2d; border: none; border-radius: 10px; color: #e0e0e0; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .detail-title { color: #fff; font-size: 1.2rem; margin-bottom: 15px; }
+        .detail-meta { color: #999; font-size: 0.9rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #2d2d2d; }
+        .detail-content { color: #ccc; font-size: 1rem; line-height: 1.8; }
+        
+        /* 底部 */
+        .footer { text-align: center; padding: 12px; background: #1e1e1e; border-radius: 12px; color: #777; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -192,18 +50,18 @@
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
-            <button class="active" id="filterAll">全部公告</button>
-            <button id="filterSystem">系统通知</button>
-            <button id="filterActivity">活动公告</button>
-            <button id="filterNotice">重要通知</button>
+            <button class="active">全部公告</button>
+            <button>系统通知</button>
+            <button>活动公告</button>
+            <button>重要通知</button>
         </div>
 
-        <!-- 核心内容容器 -->
+        <!-- 内容容器 -->
         <div class="content-container">
-            <!-- 公告列表（静态写死，确保点击生效） -->
-            <div class="notice-list" id="noticeList">
-                <!-- 公告1（置顶） -->
-                <div class="notice-item sticky" data-id="1" data-type="notice">
+            <!-- 公告列表（默认显示） -->
+            <div class="notice-list" id="list">
+                <!-- 公告1（点击跳转到详情） -->
+                <div class="notice-item sticky" onclick="document.getElementById('list').style.display='none';document.getElementById('detail1').style.display='block'">
                     <div class="title">
                         <span class="sticky-tag">置顶</span>
                         测试公告（置顶）
@@ -215,40 +73,29 @@
                 </div>
 
                 <!-- 公告2 -->
-                <div class="notice-item" data-id="2" data-type="activity">
+                <div class="notice-item" onclick="document.getElementById('list').style.display='none';document.getElementById('detail2').style.display='block'">
                     <div class="title">测试公告1</div>
                     <div class="meta">
                         <span>2025-12-22</span>
                         <span>活动公告</span>
                     </div>
                 </div>
-
-                <!-- 公告3 -->
-                <div class="notice-item" data-id="3" data-type="system">
-                    <div class="title">测试公告2</div>
-                    <div class="meta">
-                        <span>2025-12-20</span>
-                        <span>系统通知</span>
-                    </div>
-                </div>
-
-                <!-- 公告4 -->
-                <div class="notice-item" data-id="4" data-type="notice">
-                    <div class="title">测试公告3</div>
-                    <div class="meta">
-                        <span>2025-12-18</span>
-                        <span>重要通知</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- 公告详情（静态结构，包含清晰的返回按钮） -->
-            <div class="notice-detail" id="noticeDetail">
-                <!-- 返回按钮：明确显示，样式强化 -->
-                <button class="back-btn" id="backBtn">← 返回公告列表</button>
-                <h2 class="detail-title" id="detailTitle"></h2>
-                <div class="detail-meta" id="detailMeta"></div>
-                <div class="detail-content" id="detailContent"></div>
+            <!-- 公告1详情（带返回按钮） -->
+            <div class="notice-detail" id="detail1">
+                <button class="back-btn" onclick="document.getElementById('detail1').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
+                <h2 class="detail-title">测试公告（置顶）</h2>
+                <div class="detail-meta">2025-12-24 | 重要通知</div>
+                <div class="detail-content">测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容</div>
+            </div>
+
+            <!-- 公告2详情（带返回按钮） -->
+            <div class="notice-detail" id="detail2">
+                <button class="back-btn" onclick="document.getElementById('detail2').style.display='none';document.getElementById('list').style.display='block'">← 返回公告列表</button>
+                <h2 class="detail-title">测试公告1</h2>
+                <div class="detail-meta">2025-12-22 | 活动公告</div>
+                <div class="detail-content">测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1</div>
             </div>
         </div>
 
@@ -257,107 +104,5 @@
             © 2025 公告展示平台 版权所有
         </div>
     </div>
-
-    <script>
-        // 公告数据（与HTML列表对应）
-        const noticeData = [
-            {
-                id: 1,
-                title: "测试公告（置顶）",
-                meta: "2025-12-24 | 重要通知",
-                content: "测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容测试内容"
-            },
-            {
-                id: 2,
-                title: "测试公告1",
-                meta: "2025-12-22 | 活动公告",
-                content: "测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1测试内容1"
-            },
-            {
-                id: 3,
-                title: "测试公告2",
-                meta: "2025-12-20 | 系统通知",
-                content: "测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2测试内容2"
-            },
-            {
-                id: 4,
-                title: "测试公告3",
-                meta: "2025-12-18 | 重要通知",
-                content: "测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3测试内容3"
-            }
-        ];
-
-        // 获取所有DOM元素（直接获取，无需等待动态渲染）
-        const noticeList = document.getElementById('noticeList');
-        const noticeDetail = document.getElementById('noticeDetail');
-        const backBtn = document.getElementById('backBtn');
-        const detailTitle = document.getElementById('detailTitle');
-        const detailMeta = document.getElementById('detailMeta');
-        const detailContent = document.getElementById('detailContent');
-        const noticeItems = document.querySelectorAll('.notice-item');
-        const filterAll = document.getElementById('filterAll');
-        const filterSystem = document.getElementById('filterSystem');
-        const filterActivity = document.getElementById('filterActivity');
-        const filterNotice = document.getElementById('filterNotice');
-
-        // 1. 公告项点击事件（直接绑定所有已存在的项）
-        noticeItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const noticeId = parseInt(this.dataset.id);
-                // 查找对应数据
-                const targetNotice = noticeData.find(item => item.id === noticeId);
-                if (targetNotice) {
-                    // 填充详情
-                    detailTitle.innerText = targetNotice.title;
-                    detailMeta.innerText = targetNotice.meta;
-                    detailContent.innerText = targetNotice.content;
-                    // 切换显示
-                    noticeList.style.display = 'none';
-                    noticeDetail.style.display = 'block';
-                }
-            });
-        });
-
-        // 2. 返回按钮点击事件（确保功能正常）
-        backBtn.addEventListener('click', function() {
-            noticeDetail.style.display = 'none';
-            noticeList.style.display = 'block';
-        });
-
-        // 3. 筛选事件（简单生效版）
-        filterAll.addEventListener('click', function() {
-            setActiveFilter(this);
-            noticeItems.forEach(item => item.style.display = 'block');
-        });
-
-        filterSystem.addEventListener('click', function() {
-            setActiveFilter(this);
-            noticeItems.forEach(item => {
-                item.dataset.type === 'system' ? item.style.display = 'block' : item.style.display = 'none';
-            });
-        });
-
-        filterActivity.addEventListener('click', function() {
-            setActiveFilter(this);
-            noticeItems.forEach(item => {
-                item.dataset.type === 'activity' ? item.style.display = 'block' : item.style.display = 'none';
-            });
-        });
-
-        filterNotice.addEventListener('click', function() {
-            setActiveFilter(this);
-            noticeItems.forEach(item => {
-                item.dataset.type === 'notice' ? item.style.display = 'block' : item.style.display = 'none';
-            });
-        });
-
-        // 辅助函数：设置筛选按钮激活状态
-        function setActiveFilter(activeBtn) {
-            [filterAll, filterSystem, filterActivity, filterNotice].forEach(btn => {
-                btn.classList.remove('active');
-            });
-            activeBtn.classList.add('active');
-        }
-    </script>
 </body>
 </html>
